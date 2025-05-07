@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Home Dashboard</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* Global Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #74abe2, #5563de);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      margin: 20px;
+      color: #fff;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    /* Container */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+    }
+    /* Card Style */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      padding: 20px;
+      margin: 20px auto;
+      width: 100%;
+      max-width: 400px;
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    /* Login Form */
+    #loginForm {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+    }
+    #loginForm input {
+      width: 90%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    #loginForm button {
+      width: 95%;
+      padding: 12px;
+      margin-top: 15px;
+      border: none;
+      border-radius: 8px;
+      background: #5563de;
+      color: #fff;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #loginForm button:hover {
+      background: #4550b5;
+    }
+    /* Logout Button */
+    #logoutButton {
+      background: #ff5733;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin: 10px;
+      display: none;
+    }
+    #logoutButton:hover {
+      background: #e04e28;
+    }
+    /* Devices Grid */
+    #devicesList {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      width: 100%;
+      padding: 20px;
+      transition: opacity 0.3s ease;
+    }
+    .device-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .device-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+    .device-item p {
+      margin: 10px 0;
+    }
+    .device-item button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 8px;
+      background: #5563de;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      font-size: 0.9rem;
+    }
+    .device-item button:hover {
+      background: #4550b5;
+    }
+  </style>
+</head>
+<body>
+  <h1>Smart Home Dashboard</h1>
+  <div class="container">
+    <div id="loginForm" class="card">
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button id="loginButton">Login</button>
+    </div>
+    <button id="logoutButton">Logout</button>
+    <div id="devicesList"></div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

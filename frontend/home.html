@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home System</title>
+    <link href="/static/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #0d6efd;
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .device-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .device-status {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .device-on {
+            color: #198754;
+        }
+        .device-off {
+            color: #dc3545;
+        }
+        .device-card {
+            transition: all 0.3s ease;
+        }
+        .device-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .color-picker {
+            width: 100%;
+            height: 40px;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/home">Smart Home System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/home">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="addHomeBtn">Add Home</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logoutBtn">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Homes Section -->
+        <div id="homesSection">
+            <div class="row" id="homesContainer"></div>
+        </div>
+
+        <!-- Rooms Section -->
+        <div id="roomsSection" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 id="currentHomeName"></h2>
+                <button class="btn btn-primary" id="addRoomBtn">
+                    <i class="bi bi-plus-circle"></i> Add Room
+                </button>
+            </div>
+            <div class="row" id="roomsContainer"></div>
+        </div>
+
+        <!-- Devices Section -->
+        <div id="devicesSection" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 id="currentRoomName"></h2>
+                <button class="btn btn-primary" id="addDeviceBtn">
+                    <i class="bi bi-plus-circle"></i> Add Device
+                </button>
+            </div>
+            <div class="row" id="devicesContainer"></div>
+        </div>
+    </div>
+
+    <!-- Add Home Modal -->
+    <div class="modal fade" id="addHomeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Home</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addHomeForm">
+                        <div class="mb-3">
+                            <label for="homeName" class="form-label">Home Name</label>
+                            <input type="text" class="form-control" id="homeName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="homeAddress" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="homeAddress" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveHomeBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Room Modal -->
+    <div class="modal fade" id="addRoomModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Room</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addRoomForm">
+                        <div class="mb-3">
+                            <label for="roomName" class="form-label">Room Name</label>
+                            <input type="text" class="form-control" id="roomName" required>
+                        </div>
+                        <input type="hidden" id="roomHomeId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveRoomBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Device Modal -->
+    <div class="modal fade" id="addDeviceModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Device</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addDeviceForm">
+                        <div class="mb-3">
+                            <label for="deviceName" class="form-label">Device Name</label>
+                            <input type="text" class="form-control" id="deviceName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="deviceType" class="form-label">Device Type</label>
+                            <select class="form-select" id="deviceType" required>
+                                <option value="light">Light</option>
+                                <option value="thermostat">Thermostat</option>
+                                <option value="lock">Lock</option>
+                                <option value="camera">Camera</option>
+                            </select>
+                        </div>
+                        <input type="hidden" id="deviceRoomId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveDeviceBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentHomeId = null;
+        let currentRoomId = null;
+        let websocket = null;
+
+        // Check authentication
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        // Initialize modals
+        const addHomeModal = new bootstrap.Modal(document.getElementById('addHomeModal'));
+        const addRoomModal = new bootstrap.Modal(document.getElementById('addRoomModal'));
+        const addDeviceModal = new bootstrap.Modal(document.getElementById('addDeviceModal'));
+
+        // Load homes on page load
+        document.addEventListener('DOMContentLoaded', loadHomes);
+
+        // Event listeners
+        document.getElementById('addHomeBtn').addEventListener('click', () => addHomeModal.show());
+        document.getElementById('addRoomBtn').addEventListener('click', () => addRoomModal.show());
+        document.getElementById('addDeviceBtn').addEventListener('click', () => addDeviceModal.show());
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+
+        document.getElementById('saveHomeBtn').addEventListener('click', saveHome);
+        document.getElementById('saveRoomBtn').addEventListener('click', saveRoom);
+        document.getElementById('saveDeviceBtn').addEventListener('click', saveDevice);
+
+        async function loadHomes() {
+            console.log('Loading homes...');
+            try {
+                const response = await fetch('/homes/', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                console.log('Homes response status:', response.status);
+                
+                if (response.ok) {
+                    const homes = await response.json();
+                    console.log('Loaded homes:', homes);
+                    displayHomes(homes);
+                } else {
+                    const error = await response.json();
+                    console.error('Error loading homes:', error);
+                    alert('Failed to load homes: ' + (error.detail || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error loading homes:', error);
+                alert('Failed to load homes');
+            }
+        }
+
+        function displayHomes(homes) {
+            const container = document.getElementById('homesContainer');
+            container.innerHTML = '';
+            
+            if (homes.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No homes found. Click "Add Home" to create your first home.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            homes.forEach(home => {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 mb-4';
+                col.innerHTML = `
+                    <div class="card device-card">
+                        <div class="card-body">
+                            <h5 class="card-title">${home.name}</h5>
+                            <p class="card-text">${home.address}</p>
+                            <button class="btn btn-primary" onclick="showRooms(${home.id}, '${home.name}')">
+                                View Rooms
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        async function showRooms(homeId, homeName) {
+            currentHomeId = homeId;
+            document.getElementById('currentHomeName').textContent = homeName;
+            
+            try {
+                const response = await fetch(`/rooms/${homeId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const rooms = await response.json();
+                    displayRooms(rooms);
+                    document.getElementById('homesSection').style.display = 'none';
+                    document.getElementById('roomsSection').style.display = 'block';
+                    document.getElementById('devicesSection').style.display = 'none';
+                } else {
+                    throw new Error('Failed to load rooms');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load rooms');
+            }
+        }
+
+        function displayRooms(rooms) {
+            const container = document.getElementById('roomsContainer');
+            container.innerHTML = '';
+            
+            rooms.forEach(room => {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 mb-4';
+                col.innerHTML = `
+                    <div class="card device-card">
+                        <div class="card-body">
+                            <h5 class="card-title">${room.name}</h5>
+                            <button class="btn btn-primary" onclick="showDevices(${room.id}, '${room.name}')">
+                                View Devices
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        async function showDevices(roomId, roomName) {
+            currentRoomId = roomId;
+            document.getElementById('currentRoomName').textContent = roomName;
+            
+            try {
+                const response = await fetch(`/devices/${roomId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const devices = await response.json();
+                    displayDevices(devices);
+                    document.getElementById('homesSection').style.display = 'none';
+                    document.getElementById('roomsSection').style.display = 'none';
+                    document.getElementById('devicesSection').style.display = 'block';
+                    
+                    // Connect to WebSocket for real-time updates
+                    connectWebSocket();
+                } else {
+                    throw new Error('Failed to load devices');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load devices');
+            }
+        }
+
+        function displayDevices(devices) {
+            const container = document.getElementById('devicesContainer');
+            container.innerHTML = '';
+            
+            devices.forEach(device => {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 mb-4';
+                
+                let controls = '';
+                if (device.type === 'light') {
+                    controls = `
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" 
+                                ${device.status ? 'checked' : ''}
+                                onchange="updateDevice(${device.id}, 'status', this.checked)">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Brightness</label>
+                            <input type="range" class="form-range" min="0" max="100" 
+                                value="${device.brightness}"
+                                onchange="updateDevice(${device.id}, 'brightness', this.value)">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Color</label>
+                            <input type="color" class="color-picker" 
+                                value="${device.color}"
+                                onchange="updateDevice(${device.id}, 'color', this.value)">
+                        </div>
+                    `;
+                } else if (device.type === 'blind') {
+                    controls = `
+                        <div class="mb-2">
+                            <label class="form-label">Position</label>
+                            <input type="range" class="form-range" min="0" max="100" 
+                                value="${device.position}"
+                                onchange="updateDevice(${device.id}, 'position', this.value)">
+                        </div>
+                    `;
+                } else {
+                    controls = `
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" 
+                                ${device.status ? 'checked' : ''}
+                                onchange="updateDevice(${device.id}, 'status', this.checked)">
+                        </div>
+                    `;
+                }
+                
+                col.innerHTML = `
+                    <div class="card device-card" data-device-id="${device.id}">
+                        <div class="card-body">
+                            <h5 class="card-title">${device.name}</h5>
+                            <p class="card-text">Type: ${device.type}</p>
+                            ${controls}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        function connectWebSocket() {
+            if (websocket) {
+                websocket.close();
+            }
+            
+            websocket = new WebSocket(`ws://${window.location.host}/ws/${currentHomeId}`);
+            
+            websocket.onmessage = (event) => {
+                const update = JSON.parse(event.data);
+                if (update.type === 'device_update') {
+                    updateDeviceUI(update);
+                }
+            };
+            
+            websocket.onclose = () => {
+                console.log('WebSocket connection closed');
+            };
+        }
+
+        function updateDeviceUI(update) {
+            const deviceElement = document.querySelector(`[data-device-id="${update.device_id}"]`);
+            if (deviceElement) {
+                if (update.status !== undefined) {
+                    deviceElement.querySelector('.form-check-input').checked = update.status;
+                }
+                if (update.brightness !== undefined) {
+                    deviceElement.querySelector('input[type="range"]').value = update.brightness;
+                }
+                if (update.color !== undefined) {
+                    deviceElement.querySelector('input[type="color"]').value = update.color;
+                }
+                if (update.position !== undefined) {
+                    deviceElement.querySelector('input[type="range"]').value = update.position;
+                }
+            }
+        }
+
+        async function updateDevice(deviceId, field, value) {
+            try {
+                const update = {};
+                update[field] = value;
+                
+                const response = await fetch(`/devices/${deviceId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(update)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update device');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to update device');
+            }
+        }
+
+        async function saveHome() {
+            const name = document.getElementById('homeName').value;
+            const address = document.getElementById('homeAddress').value;
+            
+            console.log('Saving home:', { name, address });
+            
+            try {
+                const response = await fetch('/homes/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, address })
+                });
+                
+                console.log('Save home response status:', response.status);
+                
+                if (response.ok) {
+                    addHomeModal.hide();
+                    document.getElementById('homeName').value = '';
+                    document.getElementById('homeAddress').value = '';
+                    loadHomes();
+                } else {
+                    const error = await response.json();
+                    console.error('Error saving home:', error);
+                    alert('Failed to create home: ' + (error.detail || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error saving home:', error);
+                alert('Failed to create home');
+            }
+        }
+
+        async function saveRoom() {
+            const name = document.getElementById('roomName').value;
+            
+            try {
+                const response = await fetch('/rooms/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, home_id: currentHomeId })
+                });
+                
+                if (response.ok) {
+                    addRoomModal.hide();
+                    showRooms(currentHomeId, document.getElementById('currentHomeName').textContent);
+                } else {
+                    throw new Error('Failed to create room');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create room');
+            }
+        }
+
+        async function saveDevice() {
+            const name = document.getElementById('deviceName').value;
+            const type = document.getElementById('deviceType').value;
+            
+            try {
+                const response = await fetch('/devices/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, type, room_id: currentRoomId })
+                });
+                
+                if (response.ok) {
+                    addDeviceModal.hide();
+                    showDevices(currentRoomId, document.getElementById('currentRoomName').textContent);
+                } else {
+                    throw new Error('Failed to create device');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to create device');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

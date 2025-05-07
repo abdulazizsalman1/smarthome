@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home System - Login</title>
+    <link href="/static/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <h2 class="text-center mb-4">Login</h2>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" required>
+                    <div id="usernameError" class="error-message"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required>
+                    <div id="passwordError" class="error-message"></div>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+                <div class="text-center mt-3">
+                    <a href="/register" id="registerLink">Don't have an account? Register</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/bootstrap.bundle.min.js"></script>
+    <script>
+        function clearErrors() {
+            document.getElementById('usernameError').textContent = '';
+            document.getElementById('passwordError').textContent = '';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            console.log('Attempting login with:', username);
+
+            try {
+                const response = await fetch('/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+                });
+
+                console.log('Login response status:', response.status);
+                const responseData = await response.json();
+                console.log('Login response data:', responseData);
+
+                if (response.ok) {
+                    localStorage.setItem('token', responseData.access_token);
+                    console.log('Token stored, redirecting to home...');
+                    window.location.href = '/home';
+                } else {
+                    if (responseData.detail === 'Incorrect username or password') {
+                        document.getElementById('usernameError').textContent = responseData.detail;
+                        document.getElementById('passwordError').textContent = responseData.detail;
+                    } else {
+                        alert(responseData.detail || 'Login failed');
+                    }
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('An error occurred during login');
+            }
+        });
+    </script>
+</body>
+</html> 
