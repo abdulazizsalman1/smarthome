@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from typing import List
 import json
 import os
-from backend. import models, auth
+from backend import models, auth
 from backend.database import engine, get_db
 from pydantic import BaseModel
 from datetime import timedelta, datetime
